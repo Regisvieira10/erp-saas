@@ -9,6 +9,10 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthController {
   constructor(private prisma: PrismaService) {}
 
+  private get jwtService() {
+    return new JwtService({ secret: process.env.JWT_SECRET || 'erp_secret_2024_production' });
+  }
+
   private jwtService = new JwtService({ secret: 'erp-a-firma-secret-2024' });
 
   @Post('register')

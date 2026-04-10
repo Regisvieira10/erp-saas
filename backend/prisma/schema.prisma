@@ -1,4 +1,4 @@
-// prisma/schema.prisma - SQLite
+// prisma/schema.prisma - PostgreSQL (unified)
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,26 +10,31 @@ datasource db {
 
 model Tenant {
   id          String   @id @default(uuid())
-  name       String
-  domain     String   @unique
-  document   String?
-  phone      String?
-  email      String?
-  address    String?
-  city       String?
-  state      String?
-  zipCode    String?
-  logo       String?
+  name        String
+  domain      String   @unique
+  document    String?
+  phone       String?
+  email       String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  logo        String?
   primaryColor String? @default("#2563eb")
-  whatsapp   String?
-  status     String   @default("ACTIVE")
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  whatsapp    String?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  users       User[]
+  products    Product[]
+  customers   Customer[]
+  orders      Order[]
 }
 
 model User {
   id        String   @id @default(uuid())
   tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
   email     String
   name      String
   password  String
@@ -37,13 +42,13 @@ model User {
   status    String   @default("ACTIVE")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   @@unique([tenantId, email])
 }
 
 model Product {
   id          String   @id @default(uuid())
   tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
   name        String
   description String?
   sku         String?
@@ -53,11 +58,10 @@ model Product {
   stock       Float   @default(0)
   minStock    Float   @default(0)
   categoryId  String?
-  featured   Boolean   @default(false)
-  status     String    @default("ACTIVE")
+  featured    Boolean   @default(false)
+  status      String    @default("ACTIVE")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
   @@unique([tenantId, name])
 }
 
@@ -75,6 +79,7 @@ model Category {
 model Customer {
   id          String   @id @default(uuid())
   tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
   document    String?
   name        String
   email       String?
@@ -91,6 +96,7 @@ model Customer {
 model Order {
   id              String   @id @default(uuid())
   tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
   orderNumber     String
   customerId      String?
   customerName    String
