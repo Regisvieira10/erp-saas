@@ -1,0 +1,12 @@
+[railway]
+  [railway.variables]
+    NODE_ENV = "production"
+    PORT = "3001"
+
+[build]
+  builder = "nixpacks"
+  buildCommand = "npm run build"
+  startCommand = "node dist/main.js"
+
+[deploy]
+  rootDirectory = "backend"

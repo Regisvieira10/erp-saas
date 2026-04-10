@@ -1,0 +1,198 @@
+// prisma/schema.postgresql.prisma
+// Para usar PostgreSQL (Supabase, Railway, etc)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id          String   @id @default(uuid())
+  name       String
+  domain     String   @unique
+  document   String?
+  phone      String?
+  email      String?
+  address    String?
+  city       String?
+  state      String?
+  zipCode    String?
+  logo       String?
+  primaryColor String? @default("#2563eb")
+  whatsapp   String?
+  status     String   @default("ACTIVE")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  users      User[]
+  products   Product[]
+  customers  Customer[]
+  orders     Order[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  email     String
+  name      String
+  password  String
+  role      String   @default("USER")
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, email])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  name        String
+  description String?
+  sku         String?
+  images      String?
+  price       Float   @default(0)
+  costPrice   Float?
+  stock       Float   @default(0)
+  minStock    Float   @default(0)
+  categoryId  String?
+  featured   Boolean   @default(false)
+  status     String    @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([tenantId, name])
+}
+
+model Customer {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  document    String?
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  orderNumber     String
+  customerId      String?
+  customerName    String
+  customerPhone   String
+  customerDocument String?
+  customerAddress String?
+  subtotal       Float   @default(0)
+  discount      Float   @default(0)
+  total         Float   @default(0)
+  status        String   @default("PENDING")
+  paymentMethod String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  productName String
+  productImage String?
+  quantity     Float   @default(1)
+  unitPrice   Float   @default(0)
+  total       Float   @default(0)
+}
+
+model Lead {
+  id       String   @id @default(uuid())
+  tenantId String
+  name     String
+  email    String?
+  phone    String?
+  company  String?
+  source   String?
+  status   String   @default("NEW")
+  score    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Deal {
+  id             String    @id @default(uuid())
+  tenantId       String
+  leadId         String?
+  title          String
+  value          Float   @default(0)
+  stage          String    @default("QUALIFICATION")
+  probability   Int       @default(10)
+  expectedClose DateTime?
+  closedAt      DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Task {
+  id           String    @id @default(uuid())
+  tenantId     String
+  dealId       String?
+  leadId       String?
+  title        String
+  description String?
+  type         String
+  priority     String    @default("MEDIUM")
+  status       String    @default("PENDING")
+  dueDate      DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model Invoice {
+  id               String    @id @default(uuid())
+  tenantId         String
+  orderId          String?
+  invoiceNumber    String
+  serie            String
+  type             String
+  status           String    @default("DRAFT")
+  customerName     String
+  customerDocument String
+  subtotal         Float   @default(0)
+  discount         Float   @default(0)
+  total            Float   @default(0)
+  xml              String?
+  key              String?   @unique
+  issuedAt         DateTime?
+  cancelledAt      DateTime?
+  createdAt        DateTime  @default(now())
+
+  items            InvoiceItem[]
+}
+
+model InvoiceItem {
+  id           String   @id @default(uuid())
+  invoiceId    String
+  invoice      Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId    String
+  productName String
+  quantity     Float   @default(1)
+  unitPrice   Float   @default(0)
+  total       Float   @default(0)
+}

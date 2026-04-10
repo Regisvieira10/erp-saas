@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERP SaaS - Sistema de Gestão</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+    .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-box { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    .login-box h1 { text-align: center; margin-bottom: 1.5rem; color: #2563eb; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; }
+    .form-group input:focus { outline: none; border-color: #2563eb; }
+    button { width: 100%; background: #2563eb; color: white; padding: 0.75rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 500; }
+    button:hover { background: #1d4ed8; }
+    .error { background: #fee2e2; color: #dc2626; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem; }
+    .logo-text { font-size: 1.5rem; font-weight: bold; color: #2563eb; margin-bottom: 2rem; }
+    .features { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+    .features h3 { font-size: 0.875rem; color: #666; margin-bottom: 0.75rem; }
+    .features ul { list-style: none; font-size: 0.875rem; color: #666; }
+    .features li { padding: 0.25rem 0; }
+    .features li::before { content: "✓"; color: #22c55e; margin-right: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="logo-text">ERP SaaS</div>
+      <form id="loginForm">
+        <div class="error" id="error" style="display: none;"></div>
+        <div class="form-group">
+          <label>Domínio da Empresa</label>
+          <input type="text" id="domain" placeholder="suaempresa" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="admin@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" id="btn">Entrar</button>
+      </form>
+      <div class="features">
+        <h3>Funcionalidades do Sistema:</h3>
+        <ul>
+          <li>Multi-Tenant (várias lojas)</li>
+          <li>E-commerce + PDV</li>
+          <li>Gestão de Produtos</li>
+          <li>Pedidos e Vendas</li>
+          <li>NF-e (Nota Fiscal)</li>
+          <li>CRM e Pipeline</li>
+          <li>Relatórios</li>
+          <li>App Mobile</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var domain = document.getElementById('domain').value;
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      var btn = document.getElementById('btn');
+      var error = document.getElementById('error');
+      
+      if (!domain || !email || !password) {
+        error.textContent = 'Preencha todos os campos';
+        error.style.display = 'block';
+        return;
+      }
+      
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
+      
+      setTimeout(function() {
+        error.textContent = 'Erro: Backend não está rodando. Execute: cd backend && npm run start:dev';
+        error.style.display = 'block';
+        btn.textContent = 'Entrar';
+        btn.disabled = false;
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
