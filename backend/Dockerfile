@@ -1,15 +1,14 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache openssl
+WORKDIR /app
 
-WORKDIR /app/backend
+COPY package*.json ./
+RUN npm ci --only=production
 
-COPY backend/package*.json ./
-RUN npm install
-
-COPY backend/ .
+COPY prisma ./prisma/
 RUN npx prisma generate
-RUN npm run build
+
+COPY dist ./dist/
 
 EXPOSE 3001
 

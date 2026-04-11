@@ -22,21 +22,24 @@ git push -u origin main
 1. Acesse https://supabase.com
 2. Crie projeto gratuito
 3. Vá em Settings → Database → Connection String
-4. Copie a URI (vai precisar no Railway)
+4. Copie a URI (vai precisar no deploy)
 
-### 3. Deploy Backend no Railway
+### 3. Deploy Backend no Render (Gratuito)
 
-1. Acesse https://railway.app
+1. Acesse https://render.com
 2. Login com GitHub
-3. New Project → Deploy from GitHub repo
-4. Selecione o repositório `erp-saas`
-5. Em **Variables**, adicione:
+3. New → Web Service
+4. Conecte seu repositório `erp-saas`
+5. Configure:
+   - **Build Command**: `cd backend && npm install && npx prisma generate && npm run build`
+   - **Start Command**: `node dist/main`
+   - **Root Directory**: `backend`
+6. Em **Environment Variables**, adicione:
    - `DATABASE_URL` = sua string do Supabase
-   - `JWT_SECRET` = uma senha forte (ex: `g3r4nd3_s3nh4_sup3r_s3gur4_2024`)
+   - `JWT_SECRET` = uma senha forte
    - `NODE_ENV` = production
-6. Em **Settings** → Start Command: `node dist/main.js`
-7. Em **Settings** → Root Directory: `backend`
-8. Deploy! (anote a URL, ex: `https://erp-saas.railway.app`)
+   - `PORT` = 10000
+7. Deploy! (anote a URL, ex: `https://erp-saas.onrender.com`)
 
 ### 4. Deploy Frontend no Vercel
 
@@ -44,18 +47,18 @@ git push -u origin main
 2. New Project → Import do GitHub
 3. Selecione o repositório
 4. Em **Environment Variables**:
-   - `NEXT_PUBLIC_API_URL` = URL do Railway + `/api` (ex: `https://erp-saas.railway.app/api`)
+   - `NEXT_PUBLIC_API_URL` = URL do Render + `/api` (ex: `https://erp-saas.onrender.com/api`)
 5. Framework Preset: Next.js
 6. Root Directory: `frontend`
 7. Deploy!
 
 ### 5. Primeiro Acesso
 
-Backend: `https://seu-backend.railway.app/api`
+Backend: `https://seu-backend.onrender.com/api`
 
 Criar primeiro usuário via curl:
 ```bash
-curl -X POST https://seu-backend.railway.app/api/auth/register \
+curl -X POST https://seu-backend.onrender.com/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"tenantName":"Sua Empresa","domain":"suaempresa","userName":"Admin","email":"admin@empresa.com","password":"SUASENHA123"}'
 ```
@@ -71,6 +74,7 @@ erp-saas/
 ├── frontend/         # Next.js (porta 3000)
 │   ├── src/
 │   └── pages/        # Rotas
+├── render.yaml       # Configuração Render
 └── README.md
 ```
 
@@ -91,3 +95,10 @@ npm run dev          # Desenvolvimento
 npm run build        # Build produção
 npm run start        # Start produção
 ```
+
+## Notas Importantes
+
+- O Render oferece 750 horas/mês gratuitas
+- O banco Supabase já está configurado e funcionando
+- Tempo de build pode ser mais longo no primeiro deploy
+- Após deploy, execute as migrations do Prisma se necessário
