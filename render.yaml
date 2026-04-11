@@ -1,16 +1,11 @@
-[build]
-  builder = "docker"
-  publish = "backend/dist"
-
-[build.environment]
-  NODE_ENV = "production"
-
-[[build.env]]
-  name = "NODE_ENV"
-  value = "production"
-
-[deploy]
-  startCommand = "node dist/main"
-  numInstances = 1
-  cpuType = "shared"
-  memoryMiB = 512
+services:
+  - type: web
+    name: erp-backend
+    env: node
+    buildCommand: npm run build
+    startCommand: node dist/main.js
+    envVars:
+      - key: DATABASE_URL
+        value: postgres://postgres:KM,tr9fmc$huP&S@db.kepnqtblmpcsgvuzvmdf.supabase.co:5432/postgres
+      - key: JWT_SECRET
+        value: erp_secret_2024_production
