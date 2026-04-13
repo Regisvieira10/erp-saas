@@ -1,0 +1,14 @@
+{
+  "name": "erp-saas-backend",
+  "version": "1.0.0",
+  "description": "Multi-tenant ERP SaaS Backend - NestJS",
+  "main": "backend/dist/main.js",
+  "scripts": {
+    "build": "cd backend && npm run build",
+    "start": "cd backend && node dist/main.js",
+    "dev": "cd backend && npm run start:dev"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

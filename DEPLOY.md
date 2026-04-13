@@ -1,104 +1,167 @@
-# ERP SaaS - Sistema de Gestão Multi-tenant
+# ERP SaaS - Deploy Guide
 
-## Deploy Guide
+## Status do Projeto
 
-### 1. Preparar o GitHub
+- **Backend**: NestJS (porta 3001) ✓
+- **Frontend**: Next.js (porta 3000) ✓
+- **Banco**: Supabase (PostgreSQL) ✓
+- **Docker**: Não disponível no PC
 
+---
+
+## Opções de Deploy (Gratuitas)
+
+### Opção 1: Fly.io (Recomendado)
+
+#### Configuração já preparada:
+- App: `erp-saas-prod` (criado automaticamente)
+- Región: São Paulo (gru)
+- Banco: Supabase conectado
+
+#### Para fazer deploy:
+
+1. **Criou uma conta no Fly.io?** (https://fly.io)
+
+2. **Instale o Fly CLI** (em outro PC ou quando tiver internet):
+```bash
+winget install fly-cli
+# ou
+curl -L https://fly.io/install.sh | sh
+```
+
+3. **Faça login**:
+```bash
+fly auth login
+```
+
+4. **Deploy**:
 ```bash
 cd C:\Users\Potato\erp-saas
+fly deploy --app erp-saas-prod --now
+```
 
-# Inicializar git
+---
+
+### Opção 2: Render.com
+
+1. Acesse https://render.com
+2. New → Web Service
+3. Conecte o repositório GitHub
+4. Configure:
+   - **Build Command**: `cd backend && npm install && npx prisma generate && npm run build`
+   - **Start Command**: `node dist/main.js`
+   - **Root Directory**: `backend`
+5. Environment Variables:
+   - `DATABASE_URL` = `postgres://postgres:KM%2Ctr9fmc%24huP%26S@db.kepnqtblmpcsgvuzvmdf.supabase.co:5432/postgres`
+   - `JWT_SECRET` = `erp_secret_2024_production`
+   - `NODE_ENV` = `production`
+   - `PORT` = `10000`
+6. Deploy!
+
+---
+
+### Opção 3: GitHub Actions (Automático)
+
+1. **Faça push do código para GitHub**:
+```bash
+cd C:\Users\Potato\erp-saas
 git init
 git add .
 git commit -m "ERP SaaS v1.0"
-
-# Criar repositório no GitHub e conectar
 git remote add origin https://github.com/SEU_USUARIO/erp-saas.git
 git push -u origin main
 ```
 
-### 2. Criar Banco no Supabase
+2. **Configure os secrets no GitHub**:
+   - Settings → Secrets → Actions
+   - Adicione: `FLY_API_TOKEN`, `DATABASE_URL`, `JWT_SECRET`
 
-1. Acesse https://supabase.com
-2. Crie projeto gratuito
-3. Vá em Settings → Database → Connection String
-4. Copie a URI (vai precisar no deploy)
+3. **O deploy será automático!**
+   - O workflow já está configurado em `.github/workflows/deploy.yml`
 
-### 3. Deploy Backend no Render (Gratuito)
+---
 
-1. Acesse https://render.com
-2. Login com GitHub
-3. New → Web Service
-4. Conecte seu repositório `erp-saas`
-5. Configure:
-   - **Build Command**: `cd backend && npm install && npx prisma generate && npm run build`
-   - **Start Command**: `node dist/main`
-   - **Root Directory**: `backend`
-6. Em **Environment Variables**, adicione:
-   - `DATABASE_URL` = sua string do Supabase
-   - `JWT_SECRET` = uma senha forte
-   - `NODE_ENV` = production
-   - `PORT` = 10000
-7. Deploy! (anote a URL, ex: `https://erp-saas.onrender.com`)
-
-### 4. Deploy Frontend no Vercel
+## Deploy do Frontend (Vercel)
 
 1. Acesse https://vercel.com
 2. New Project → Import do GitHub
-3. Selecione o repositório
-4. Em **Environment Variables**:
-   - `NEXT_PUBLIC_API_URL` = URL do Render + `/api` (ex: `https://erp-saas.onrender.com/api`)
-5. Framework Preset: Next.js
-6. Root Directory: `frontend`
-7. Deploy!
+3. Selecione o repositório `erp-saas`
+4. Configure:
+   - Framework Preset: Next.js
+   - Root Directory: `frontend`
+5. Environment Variables:
+   - `NEXT_PUBLIC_API_URL` = URL do backend + `/api`
+     - Exemplo: `https://erp-saas-prod.fly.dev/api`
+6. Deploy!
 
-### 5. Primeiro Acesso
+---
 
-Backend: `https://seu-backend.onrender.com/api`
+## Primeiro Acesso
 
-Criar primeiro usuário via curl:
+Após o deploy, crie o primeiro usuário:
+
 ```bash
-curl -X POST https://seu-backend.onrender.com/api/auth/register \
+curl -X POST https://SUA_URL/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"tenantName":"Sua Empresa","domain":"suaempresa","userName":"Admin","email":"admin@empresa.com","password":"SUASENHA123"}'
+  -d '{
+    "tenantName": "Sua Empresa",
+    "domain": "suaempresa",
+    "userName": "Admin",
+    "email": "admin@empresa.com",
+    "password": "SUASENHA123"
+  }'
 ```
+
+---
 
 ## Estrutura do Projeto
 
 ```
 erp-saas/
-├── backend/          # API NestJS (porta 3001)
-│   ├── src/
-│   ├── prisma/       # Schema do banco
-│   └── dist/         # Compilado
-├── frontend/         # Next.js (porta 3000)
-│   ├── src/
-│   └── pages/        # Rotas
-├── render.yaml       # Configuração Render
-└── README.md
+├── backend/               # API NestJS
+│   ├── src/               # Código fonte
+│   ├── prisma/            # Schema do banco
+│   ├── dist/              # Compilado (production)
+│   ├── Dockerfile         # Para deploy manual
+│   ├── .env               # Variáveis de ambiente
+│   └── package.json
+├── frontend/              # Next.js
+├── fly.toml               # Configuração Fly.io
+├── render.yaml            # Configuração Render
+└── .github/workflows/     # CI/CD
+    └── deploy.yml
 ```
 
-## Comandos Úteis
+---
 
-### Backend
-```bash
-cd backend
-npm run build        # Compilar
-npm run start:prod   # Produção
-npx prisma db push   # Sincronizar banco
+## Variáveis de Ambiente (Banco)
+
+```env
+DATABASE_URL=postgres://postgres:KM%2Ctr9fmc%24huP%26S@db.kepnqtblmpcsgvuzvmdf.supabase.co:5432/postgres
+JWT_SECRET=erp_secret_2024_production
+PORT=3001
+NODE_ENV=production
 ```
 
-### Frontend
-```bash
-cd frontend
-npm run dev          # Desenvolvimento
-npm run build        # Build produção
-npm run start        # Start produção
-```
+---
 
-## Notas Importantes
+## Problemas Conhecidos
 
-- O Render oferece 750 horas/mês gratuitas
-- O banco Supabase já está configurado e funcionando
-- Tempo de build pode ser mais longo no primeiro deploy
-- Após deploy, execute as migrations do Prisma se necessário
+### Fly.io - "cannot apply host to transport"
+
+Se o deploy Falhar com erro `cannot apply host to transport`:
+- Tente novamente após alguns minutos
+- Use `--recreate-builder` flag
+- ou use a opção Render.com
+
+### Docker não disponível
+
+O PC não tem Docker/WinSS/hipervisor. Use:
+- Deploy via GitHub Actions (recomendado)
+- ou deploy manual em outro ambiente
+
+---
+
+## Contato
+
+Em caso de dúvidas, verifique os logs de deploy ou entre em contato!
