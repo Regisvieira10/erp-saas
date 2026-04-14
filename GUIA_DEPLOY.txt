@@ -1,0 +1,165 @@
+# ERP SaaS - Deploy Completo
+
+Este guia contém TODOS os passos para fazer o deploy do seu projeto.
+
+---
+
+## PASSO 1: Criar conta no GitHub (se não tiver)
+
+1. Acesse: https://github.com
+2. Clique em "Sign up"
+3. Digite seu email
+4. Crie uma senha
+5. Crie um usuário (ex: "regis123")
+6. Complete o CAPTCHA
+7. Confirme seu email
+8. Pronto!
+
+---
+
+## PASSO 2: Criar repositório
+
+1. Acesse: https://github.com/new
+2. Repository name: erp-saas
+3. Description: Sistema ERP Multi-tenant
+4. Escolha: Public
+5. Clique: Create repository
+6. NÃO FECHE ESSA PÁGINA
+
+---
+
+## PASSO 3: Preparar Git no PC
+
+Abra o PowerShell e digite, em ordem:
+
+```
+cd C:\Users\Potato\erp-saas
+git init
+git config user.name "Seu Nome"
+git config user.email "seu@email.com"
+git add .
+git commit -m "ERP SaaS v1.0"
+```
+
+---
+
+## PASSO 4: Conectar ao GitHub
+
+1. Na página do GitHub (PASSO 2), copie o comando:
+   ```
+   git remote add origin https://github.com/SEU_USUARIO/erp-saas.git
+   ```
+2. No PowerShell, cole e execute (substitua SEU_USUARIO):
+   ```
+   git remote add origin https://github.com/SEU_USUARIO/erp-saas.git
+   ```
+3. Execute:
+   ```
+   git branch -M main
+   ```
+4. Execute:
+   ```
+   git push -u origin main
+   ```
+
+---
+
+## PASSO 5: Se pedir usuário/senha
+
+1. Acesse: https://github.com/settings/tokens
+2. Clique: Generate new token
+3. Note: deploy-erp
+4. Expiration: No expiration
+5. Marque: repo
+6. Clique: Generate token
+7. COPIE O TOKEN
+8. No PowerShell: usuário = seu usuário do GitHub, senha = TOKEN
+
+---
+
+## PASSO 6: Verificar código
+
+1. Atualize a página do GitHub (F5)
+2. Você deve ver os arquivos listados
+3. Pronto!
+
+---
+
+## PASSO 7: Pegar token do Fly.io
+
+1. Acesse: https://fly.io/user/token
+2. Faça login se necessário
+3. Clique no botão azul "Copy"
+4. COPIE O TOKEN (guarde bem!)
+
+---
+
+## PASSO 8: Configurar secrets
+
+1. Acesse: https://github.com/SEU_USUARIO/erp-saas/settings/secrets/actions
+2. Clique: New repository secret
+
+SECRET 1:
+- Name: FLY_API_TOKEN
+- Value: (cole o token do PASSO 7)
+
+SECRET 2:
+- Name: DATABASE_URL
+- Value: postgres://postgres:KM%2Ctr9fmc%24huP%26S@db.kepnqtblmpcsgvuzvmdf.supabase.co:5432/postgres
+
+SECRET 3:
+- Name: JWT_SECRET
+- Value: erp_secret_2024_production
+
+---
+
+## PASSO 9: Rodar deploy
+
+1. No GitHub, clique na aba "Actions"
+2. Clique em "Deploy to Fly.io"
+3. Clique no botão "Run workflow"
+4. Clique em "Run workflow" novamente
+5. Aguarde 5-10 minutos
+6. Quando aparecer ✓ verde, clique no deploy
+7. Anote a URL (ex: https://erp-seas-prod.fly.io)
+
+---
+
+## PASSO 10: Testar
+
+Acesse: https://erp-seas-prod.fly.io/api
+
+Deve mostrar resposta do seu backend.
+
+---
+
+## DEPLOY FRONTEND (Opcional)
+
+1. Acesse: https://vercel.com
+2. Crie conta ou faça login
+3. Add New > Project
+4. Selecione: erp-saas
+5. Environment Variables > Add:
+   - Name: NEXT_PUBLIC_API_URL
+   - Value: https://erp-seas-prod.fly.io/api
+6. Clique: Deploy
+
+---
+
+## RESUMO DAS URLs
+
+- Backend: https://erp-seas-prod.fly.io/api
+- Frontend: (URL do Vercel quando terminar)
+- Banco: Supabase (já configurado)
+
+---
+
+## SE DER ERRO NO DEPLOY
+
+- Verifique se os 3 secrets estão configurados (PASSO 8)
+- Entre na aba "Actions" e clique no erro para ver o motivo
+- O erro mais comum é token errado ou expirado
+
+---
+
+FIM DO GUIA
