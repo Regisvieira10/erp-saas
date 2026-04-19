@@ -4,20 +4,22 @@ RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-# Copia dependências do backend
+# Instalar TODAS as dependências (incluindo devDependencies para o build)
 COPY backend/package*.json ./backend/
-COPY backend/package-lock.json ./backend/
-RUN cd backend && npm ci --only=production
+RUN cd backend && npm install
 
-# Copia Prisma e gera client
+# Gerar o Prisma Client
 COPY backend/prisma ./backend/prisma/
 RUN cd backend && npx prisma generate
 
-# Copia código fonte e compila
+# Copiar código fonte e compilar
 COPY backend/src ./backend/src/
 COPY backend/tsconfig.json ./backend/
 COPY backend/nest-cli.json ./backend/
 RUN cd backend && npm run build
+
+# Remover devDependencies após build (imagem final mais leve)
+RUN cd backend && npm prune --production
 
 ENV PORT=3001
 ENV NODE_ENV=production
